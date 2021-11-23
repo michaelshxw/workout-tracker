@@ -4,11 +4,10 @@ const router = require('express').Router();
 // get workouts
 
 router.get('/api/workouts', (req, res) => {
+
     db.Workout.find({}).then(dbWorkout => {
-        console.log('all workouts');
-        console.log(dbWorkout);
         dbWorkout.forEach(workout => {
-            const total = 0;
+            var total = 0;
             workout.exercises.forEach(e => {
                 total += e.duration;
             });
@@ -22,6 +21,20 @@ router.get('/api/workouts', (req, res) => {
 
 // add exercise
 
+router.put('/api/workouts/:id', (req, res) => {
+
+    db.Workout.findOneAndUpdate(
+        { _id: req.params.id },
+        { 
+            $inc: { totalDuration: req.body.duration },
+            $push: { exercises: req.body }
+        },
+        { new: true }).then(dbWorkout => {
+            res.json(dbWorkout);
+        }).catch(error => {
+            res.json(error);
+        });
+});
 
 // create workout
 
@@ -29,4 +42,4 @@ router.get('/api/workouts', (req, res) => {
 // get workouts by type
 
 
-module.exports = router; 
+module.exports = router;
